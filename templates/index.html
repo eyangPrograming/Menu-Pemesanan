@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Pemesanan Makanan</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="header-background">
+      <img src="/static/images/logo.jpg" alt="Logo" class="logo" />
+      <span class="menu-title">Menu</span>
+    </div>
+
+    <div class="container">
+      <div style="display: flex; justify-content: space-between">
+        <div class="menu-container">
+          <!-- Kategori Menu -->
+          <div class="category-container">
+            <div class="category-buttons">
+              <button
+                onclick="filterCategory('all')"
+                class="category-btn active"
+                id="btnAll"
+              >
+                <img
+                  src="static/images/all-icon.jpeg"
+                  alt="All"
+                  class="category-icon"
+                />
+                Semua
+              </button>
+              <button
+                onclick="filterCategory('makanan')"
+                class="category-btn"
+                id="btnMakanan"
+              >
+                <img
+                  src="static/images/food-icon.png"
+                  alt="Food"
+                  class="category-icon"
+                />
+                Makanan
+              </button>
+              <button
+                onclick="filterCategory('minuman')"
+                class="category-btn"
+                id="btnMinuman"
+              >
+                <img
+                  src="static/images/drink-icon.png"
+                  alt="Beverage"
+                  class="category-icon"
+                />
+                Minuman
+              </button>
+              <button
+                onclick="filterCategory('dessert')"
+                class="category-btn"
+                id="btnDessert"
+              >
+                <img
+                  src="static/images/dessert-icon.png"
+                  alt="Dessert"
+                  class="category-icon"
+                />
+                Dessert
+              </button>
+            </div>
+          </div>
+
+          <div class="menu-items" id="menuItems">
+            <!-- Menampilkan kategori makanan -->
+            <div id="makanan" class="menu-category">
+              {{range .Foods}}
+              <div class="menu-item" data-category="makanan">
+                <img src="{{.ImageURL}}" alt="{{.Name}}" />
+                <div class="menu-details">
+                  <p class="menu-name">{{.Name}}</p>
+                  <p class="menu-price">Rp. {{.Price}}</p>
+                </div>
+                {{if .Stock}}
+                <button
+                  class="btn btn-select"
+                  onclick="addToOrder('{{.Name}}', {{.Price}}, '{{.ImageURL}}')"
+                >
+                  Pilih
+                </button>
+                {{else}}
+                <button class="btn btn-disabled" disabled>Habis</button>
+                {{end}}
+              </div>
+              {{end}}
+            </div>
+
+            <!-- Menampilkan kategori minuman -->
+            <div id="minuman" class="menu-category">
+              {{range .Drinks}}
+              <div class="menu-item" data-category="minuman">
+                <img src="{{.ImageURL}}" alt="{{.Name}}" />
+                <div class="menu-details">
+                  <p class="menu-name">{{.Name}}</p>
+                  <p class="menu-price">Rp. {{.Price}}</p>
+                </div>
+                {{if .Stock}}
+                <button
+                  class="btn btn-select"
+                  onclick="addToOrder('{{.Name}}', {{.Price}}, '{{.ImageURL}}')"
+                >
+                  Pilih
+                </button>
+                {{else}}
+                <button class="btn btn-disabled" disabled>Habis</button>
+                {{end}}
+              </div>
+              {{end}}
+            </div>
+
+            <!-- Menampilkan kategori dessert -->
+            <div id="dessert" class="menu-category">
+              {{range .Desserts}}
+              <div class="menu-item" data-category="dessert">
+                <img src="{{.ImageURL}}" alt="{{.Name}}" />
+                <div class="menu-details">
+                  <p class="menu-name">{{.Name}}</p>
+                  <p class="menu-price">Rp. {{.Price}}</p>
+                </div>
+                {{if .Stock}}
+                <button
+                  class="btn btn-select"
+                  onclick="addToOrder('{{.Name}}', {{.Price}}, '{{.ImageURL}}')"
+                >
+                  Pilih
+                </button>
+                {{else}}
+                <button class="btn btn-disabled" disabled>Habis</button>
+                {{end}}
+              </div>
+              {{end}}
+            </div>
+          </div>
+        </div>
+
+        <div class="order-container">
+          <h3 class="order-title">🛒 Pesanan Anda</h3>
+          <div id="orderItems"></div>
+          <div class="order-summary">
+            <p id="totalPrice">Total: Rp. 0</p>
+            <button class="btn btn-select" onclick="confirmOrder()">
+              Pesan sekarang
+            </button>
+            <button class="btn btn-cancel" onclick="cancelOrder()">
+              Batal
+            </button>
+
+            <!-- Tempatkan invoice di sini -->
+            <!-- Invoice Melayang -->
+            <div id="invoiceDisplay">
+              <h3>Invoice Pesanan</h3>
+              <div id="invoiceItems">
+                <!-- Item pesanan akan ditambahkan di sini -->
+              </div>
+              <div id="invoiceTotal">
+                <!-- Total harga akan ditambahkan di sini -->
+              </div>
+              <button class="close-button" onclick="closeInvoice()">
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form melayang untuk input nama dan nomor antrian -->
+    <div id="orderForm" class="order-form">
+      <h2>Masukkan Detail Pemesan</h2>
+      <form id="orderDetailsForm">
+        <div class="form-group">
+          <label for="customerName">Nama Pemesan:</label>
+          <input type="text" id="customerName" name="customerName" placeholder="Masukkan nama lengkap" required />
+        </div>
+        <div class="form-group">
+          <label for="queueNumber">Nomor Antrian:</label>
+          <input type="text" id="queueNumber" name="queueNumber" placeholder="Masukkan nomor antrian" required />
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" onclick="closeOrderForm()">Batal</button>
+          <button type="button" class="btn-submit" onclick="submitOrderDetails()">Kirim</button>
+        </div>
+      </form>
+    </div>
+    
+
+    <script src="/script.js"></script>
+  </body>
+</html>
